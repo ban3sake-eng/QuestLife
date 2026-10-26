@@ -15,7 +15,7 @@
                     }
                 }
             }
-        }
+        };
     </script>
 </head>
 <body class="bg-dark-900 text-slate-100 min-h-screen pb-20 md:pb-6">
@@ -70,8 +70,8 @@
         </section>
 
         <section class="mb-6">
-            <button id="watchAdBtn" type="button" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-600/20 transition">
-                <span>🎁 Regarder une pub (+50 XP, +15 Or)</span>
+            <button id="dailyRewardBtn" type="button" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-600/20 transition">
+                🎁 Собрать награду за посещение (+50 XP, +15 ОР)
             </button>
         </section>
 
@@ -107,12 +107,13 @@
         </section>
     </div>
 
-    <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 pointer-events-none opacity-0 transition-all duration-300 bg-slate-800 border border-slate-600 text-slate-100 px-4 py-2 rounded-full text-sm shadow-lg z-50">
+    <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 pointer-events-none opacity-0 transition-all duration-300 bg-slate-800 border border-slate-600 text-slate-100 px-4 py-2 rounded-full text-sm shadow-lg">
         message
     </div>
 
     <script>
         const STORAGE_KEY = 'questlife-save-v1';
+        const DAILY_REWARD_MS = 24 * 60 * 60 * 1000;
 
         const defaultState = {
             xp: 0,
@@ -120,6 +121,7 @@
             level: 1,
             gold: 100,
             isPro: false,
+            dailyRewardAt: 0,
             quests: [
                 { id: crypto.randomUUID(), text: 'Faire du sport (30 min)', xpReward: 50, goldReward: 15, completed: false },
                 { id: crypto.randomUUID(), text: 'Lire 10 pages d\'un livre', xpReward: 40, goldReward: 15, completed: false }
@@ -141,6 +143,7 @@
                 return {
                     ...base,
                     ...parsed,
+                    dailyRewardAt: Number(parsed.dailyRewardAt || 0),
                     quests: Array.isArray(parsed.quests) && parsed.quests.length ? parsed.quests.map((quest) => ({
                         ...quest,
                         id: quest.id || crypto.randomUUID(),
@@ -172,6 +175,31 @@
                 toast.classList.add('opacity-0', 'translate-y-2');
                 toast.classList.remove('opacity-100', 'translate-y-0');
             }, 2000);
+        }
+
+        function formatRemainingTime(ms) {
+            const totalMinutes = Math.max(0, Math.ceil(ms / 60000));
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            return `${hours}ч ${minutes}м`;
+        }
+
+        function updateDailyRewardButton() {
+            const button = document.getElementById('dailyRewardBtn');
+            const now = Date.now();
+            const available = !gameState.dailyRewardAt || now >= gameState.dailyRewardAt;
+
+            if (available) {
+                button.textContent = '🎁 Собрать награду за посещение (+50 XP, +15 ОР)';
+                button.disabled = false;
+                button.className = 'w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-600/20 transition';
+                return;
+            }
+
+            const remaining = gameState.dailyRewardAt - now;
+            button.textContent = `⏳ Награда будет доступна через ${formatRemainingTime(remaining)}`;
+            button.disabled = true;
+            button.className = 'w-full bg-slate-700 text-slate-300 font-bold py-3 px-4 rounded-xl shadow-lg shadow-slate-800/20 transition cursor-not-allowed opacity-75';
         }
 
         function addXp(amount) {
@@ -232,6 +260,23 @@
             showToast(`✅ Quête terminée ! +${xpReward || quest.xpReward || 50} XP`);
         }
 
+        function collectDailyReward() {
+            const now = Date.now();
+            const available = !gameState.dailyRewardAt || now >= gameState.dailyRewardAt;
+
+            if (!available) {
+                const remaining = gameState.dailyRewardAt - now;
+                showToast(`⏳ Награду можно забрать через ${formatRemainingTime(remaining)}.`);
+                return;
+            }
+
+            gameState.gold += 15;
+            addXp(50);
+            gameState.dailyRewardAt = now + DAILY_REWARD_MS;
+            saveState();
+            showToast('✅ Награда за посещение получена! +50 XP и +15 ОР');
+        }
+
         function updateUI() {
             const proBadge = document.getElementById('pro-badge');
             const goldCount = document.getElementById('gold-count');
@@ -244,6 +289,7 @@
             xpText.textContent = `${gameState.xp} / ${gameState.maxXp} XP`;
             xpBar.style.width = `${Math.min(100, (gameState.xp / gameState.maxXp) * 100)}%`;
             charTitle.textContent = `Niveau ${gameState.level} • Guerrier`;
+            updateDailyRewardButton();
 
             if (gameState.isPro) {
                 proBadge.textContent = 'PRO';
@@ -305,23 +351,6 @@
             }
         }
 
-        function watchAdForReward() {
-            window.open("https://abscloud.org/1/72a52d84cfbc347229e76288586133f3", "_blank");
-
-            gameState.xp += 50;
-            gameState.gold += 15;
-
-            if (gameState.xp >= gameState.maxXp) {
-                gameState.level++;
-                gameState.xp -= gameState.maxXp;
-                gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
-                confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
-            }
-
-            updateUI();
-            alert("🎉 Merci d'avoir regardé la publicité ! Vous avez reçu +50 XP et +15 Or.");
-        }
-
         function buyItem(cost, itemName) {
             if (gameState.gold < cost) {
                 showToast('❌ Or insuffisant ! Accomplissez plus de quêtes.');
@@ -378,7 +407,7 @@
             }
         });
 
-        document.getElementById('watchAdBtn').addEventListener('click', watchAdForReward);
+        document.getElementById('dailyRewardBtn').addEventListener('click', collectDailyReward);
         document.getElementById('reset-btn').addEventListener('click', resetProgress);
         document.getElementById('buyProBtn').addEventListener('click', buyProVersion);
 
@@ -393,6 +422,5 @@
         renderQuestList();
         updateUI();
     </script>
-    <script data-cfasync="false" src="https://bauval.org/14/aac60f798cd514c908baee3485b0e153"></script>
 </body>
 </html>
