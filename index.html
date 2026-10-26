@@ -216,7 +216,8 @@
             document.getElementById('xp-text').innerText = `${gameState.xp} / ${gameState.maxXp} XP`;
             document.getElementById('xp-bar').style.width = `${Math.min(100, (gameState.xp / gameState.maxXp) * 100)}%`;
             document.getElementById('char-title').innerText = `Уровень ${gameState.level} • Воин`;
-        }function addNewQuest() {
+        }
+        function addNewQuest() {
     const title = prompt("Entrez le nom de la nouvelle quête :");
     if (!title) return;
     
