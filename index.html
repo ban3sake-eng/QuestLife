@@ -1,234 +1,222 @@
-<!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="fr" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuestLife — RPG Habit Tracker & Monetization</title>
-    <!-- Tailwind CSS -->
+    <title>QuestLife - RPG To-Do List</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
-                        gold: { 500: '#f59e0b', 600: '#d97706' },
-                        rpg: { purple: '#7c3aed', dark: '#111827' }
+                        dark: { 800: '#1e293b', 900: '#0f172a' }
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome & Google Fonts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-rpg { font-family: 'Cinzel', serif; }
-        .glow-purple { box-shadow: 0 0 20px rgba(124, 58, 237, 0.4); }
-        .glow-gold { box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
-    </style>
 </head>
 <body class="bg-dark-900 text-slate-100 min-h-screen pb-20 md:pb-6">
 
-    <!-- Верхняя панель статуса -->
-    <header class="bg-dark-800 border-b border-slate-700/60 sticky top-0 z-40 px-4 py-3 shadow-md">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-rpg-purple flex items-center justify-center glow-purple">
-                    <i class="fa-solid fa-shield-halved text-white text-lg"></i>
-                </div>
+    <div class="max-w-md mx-auto p-4 sm:p-6">
+        <!-- Шапка персонажа -->
+        <header class="bg-dark-800 border border-slate-700 rounded-2xl p-4 shadow-lg mb-6">
+            <div class="flex justify-between items-center mb-3">
                 <div>
-                    <h1 class="font-rpg font-bold text-lg tracking-wider text-purple-300">QuestLife <span class="text-xs bg-purple-900/80 text-purple-200 px-2 py-0.5 rounded-full border border-purple-500/30" id="pro-badge">FREE</span></h1>
-                    <p class="text-xs text-slate-400" id="char-title">Уровень 1 • Воин</p>
+                    <h1 id="char-title" class="text-xl font-black text-amber-400">Niveau 1 • Guerrier</h1>
+                    <span id="pro-badge" class="text-xs bg-slate-700 text-slate-300 font-bold px-2 py-0.5 rounded-full">Gratuit</span>
                 </div>
-            </div>
-            
-            <!-- Ресурсы игрока -->
-            <div class="flex items-center space-x-4 text-sm">
-                <div class="bg-dark-900/80 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-2">
-                    <i class="fa-solid fa-coins text-gold-500"></i>
-                    <span id="gold-count" class="font-bold text-gold-500">100</span>
+                <div class="flex items-center gap-1 bg-dark-900 px-3 py-1.5 rounded-xl border border-slate-700">
+                    <span class="text-amber-400 font-bold">🪙</span>
+                    <span id="gold-count" class="font-bold text-amber-300">100</span>
                 </div>
-                <button onclick="openMonetizationModal()" class="bg-gradient-to-r from-amber-500 to-gold-600 hover:from-amber-400 hover:to-gold-500 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs shadow-lg glow-gold transition flex items-center space-x-1.5">
-                    <i class="fa-solid fa-crown"></i>
-                    <span>PRO / Магазин</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Основной контент -->
-    <main class="max-w-4xl mx-auto p-4 space-y-6">
-        
-        <!-- Панель персонажа и опыта -->
-        <section class="bg-dark-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h2 class="font-rpg text-xl font-bold text-slate-100" id="char-name">Странник</h2>
-                    <p class="text-xs text-purple-400 mt-0.5">Класс: Искатель приключений</p>
-                </div>
-                <button onclick="watchAdForReward()" class="bg-purple-900/40 hover:bg-purple-900/70 border border-purple-500/40 text-purple-300 text-xs px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5">
-                    <i class="fa-solid fa-play text-purple-400"></i>
-                    <span>Бонус за рекламу (+50 XP)</span>
-                </button>
             </div>
 
-            <!-- Прогресс-бар XP -->
-            <div class="space-y-1.5">
-                <div class="flex justify-between text-xs text-slate-300">
-                    <span>Опыт (XP)</span>
-                    <span id="xp-text">120 / 300 XP</span>
+            <!-- Шкала опыта -->
+            <div>
+                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>Expérience (XP)</span>
+                    <span id="xp-text">0 / 100 XP</span>
                 </div>
-                <div class="w-full bg-dark-900 h-3 rounded-full overflow-hidden border border-slate-700">
-                    <div id="xp-bar" class="bg-gradient-to-r from-purple-600 to-indigo-500 h-full transition-all duration-500" style="width: 40%"></div>
+                <div class="w-full bg-slate-700 h-3 rounded-full overflow-hidden p-0.5 border border-slate-600">
+                    <div id="xp-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
+            </div>
+        </header>
+
+        <!-- Создание квеста -->
+        <section class="mb-6">
+            <h2 class="text-lg font-bold mb-3 flex items-center gap-2">📜 Nouvelles Quêtes</h2>
+            <div class="flex gap-2">
+                <input type="text" id="questInput" placeholder="Nom de la nouvelle quête..." class="bg-dark-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white flex-1 focus:outline-none focus:border-indigo-500 text-sm">
+                <button onclick="addNewQuest()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">Créer</button>
             </div>
         </section>
 
-        <!-- Вкладки (Квесты / Магазин монетизации) -->
-        <div class="flex border-b border-slate-700 space-x-6 text-sm font-medium">
-            <button onclick="switchTab('quests')" id="tab-btn-quests" class="pb-3 border-b-2 border-purple-500 text-purple-300 transition">Активные квесты</button>
-            <button onclick="switchTab('shop')" id="tab-btn-shop" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">Лавка монетизации 🪙</button>
-        </div>
-
-        <!-- Вкладка Квестов -->
-        <div id="tab-quests" class="tab-content space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 class="font-rpg font-bold text-lg text-slate-200">Ежедневные привычки</h3>
-                <button onclick="addQuest()" class="bg-purple-600 hover:bg-purple-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow transition">
-                    + Новый квест
-                </button>
-            </div>
-            
-            <div id="quests-list" class="space-y-3">
-                <!-- Квест 1 -->
-                <div class="bg-dark-800 border border-slate-700/80 p-4 rounded-xl flex items-center justify-between shadow">
-                    <div class="flex items-center space-x-3">
-                        <button onclick="completeQuest(this, 50)" class="w-6 h-6 rounded-full border-2 border-purple-500 hover:bg-purple-600 transition flex items-center justify-center"></button>
-                        <div>
-                            <h4 class="font-semibold text-sm text-slate-100">Выпить 2 литра воды</h4>
-                            <p class="text-xs text-slate-400">Награда: +50 XP, +10 Золота</p>
-                        </div>
+        <!-- Список квестов -->
+        <section class="mb-6">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Quêtes Actives</h3>
+            <ul id="quest-list" class="space-y-2">
+                <li class="flex justify-between items-center bg-dark-800 border border-slate-700/50 p-3.5 rounded-xl shadow">
+                    <span>Faire du sport (30 min)</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="completeQuest(this, 50)" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition">Terminer</button>
+                        <button onclick="deleteQuest(this)" class="text-slate-500 hover:text-red-400 font-bold px-1">✕</button>
                     </div>
-                    <span class="text-xs bg-purple-950 text-purple-300 border border-purple-800 px-2.5 py-1 rounded-lg">Здоровье</span>
-                </div>
-            </div>
-        </div>
+                </li>
+                <li class="flex justify-between items-center bg-dark-800 border border-slate-700/50 p-3.5 rounded-xl shadow">
+                    <span>Lire 10 pages d'un livre</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="completeQuest(this, 40)" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition">Terminer</button>
+                        <button onclick="deleteQuest(this)" class="text-slate-500 hover:text-red-400 font-bold px-1">✕</button>
+                    </div>
+                </li>
+            </ul>
+        </section>
 
-        <!-- Вкладка Лавки / Монетизации -->
-        <div id="tab-shop" class="tab-content hidden space-y-4">
-            <h3 class="font-rpg font-bold text-lg text-gold-500">Магазин улучшений и микротранзакций</h3>
-            <p class="text-xs text-slate-400">Тратьте заработанное золото или оформляйте PRO-доступ для разблокировки скрытых возможностей.</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Товары магазина -->
-                <div class="bg-dark-800 border border-slate-700 p-4 rounded-xl flex flex-col justify-between">
+        <!-- Бонусная реклама -->
+        <section class="mb-6">
+            <button onclick="watchAdForReward()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <span>🎁 Regarder une pub (+50 XP, +15 Or)</span>
+            </button>
+        </section>
+
+        <!-- Магазин (Boutique) -->
+        <section>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Boutique du Mage</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-dark-800 border border-slate-700 p-3.5 rounded-xl flex flex-col justify-between">
                     <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-bold text-slate-100 text-sm"><i class="fa-solid fa-flask text-purple-400 mr-2"></i>Эликсир двойного XP</h4>
-                            <span class="text-gold-500 font-bold text-sm">50 🪙</span>
-                        </div>
-                        <p class="text-xs text-slate-400">Удваивает получаемый опыт от всех квестов в течение 24 часов.</p>
+                        <div class="text-2xl mb-1">🧪</div>
+                        <h4 class="font-bold text-sm">Potion de Sagesse</h4>
+                        <p class="text-xs text-slate-400 mb-3">+50 XP instantané</p>
                     </div>
-                    <button onclick="buyItem(50, 'Эликсир XP')" class="mt-4 bg-slate-700 hover:bg-gold-600 hover:text-slate-950 text-slate-200 text-xs font-semibold py-2 rounded-lg transition">Купить за золото</button>
+                    <button onclick="buyItem(30, 'Potion de Sagesse')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs transition">30 🪙</button>
                 </div>
-
-                <div class="bg-dark-800 border border-gold-500/40 p-4 rounded-xl flex flex-col justify-between bg-gradient-to-br from-dark-800 to-purple-950/30">
+                <div class="bg-dark-800 border border-slate-700 p-3.5 rounded-xl flex flex-col justify-between">
                     <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-bold text-gold-400 text-sm"><i class="fa-solid fa-crown mr-2"></i>QuestLife PRO (Навсегда)</h4>
-                            <span class="text-gold-400 font-bold text-sm">$4.99 / In-App</span>
-                        </div>
-                        <p class="text-xs text-slate-300">Безлимитный ИИ-Мастер, эксклюзивные классы (Некромант, Паладин) и отключение рекламы.</p>
+                        <div class="text-2xl mb-1">⚔️</div>
+                        <h4 class="font-bold text-sm">Épée Magique</h4>
+                        <p class="text-xs text-slate-400 mb-3">Statut Légendaire</p>
                     </div>
-                    <button onclick="buyProVersion()" class="mt-4 bg-gradient-to-r from-amber-500 to-gold-600 text-slate-950 font-bold text-xs py-2 rounded-lg shadow hover:opacity-90 transition">Разблокировать PRO</button>
+                    <button onclick="buyItem(100, 'Épée Magique')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs transition">100 🪙</button>
                 </div>
             </div>
-        </div>
+            <button onclick="buyProVersion()" class="w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg shadow-amber-500/20">
+                👑 Activer QuestLife PRO (200 🪙)
+            </button>
+        </section>
+    </div>
 
-    </main>
-
-    <!-- Скрипты логики -->
     <script>
+        // Состояние игры
         let gameState = {
-            xp: 120,
-            maxXp: 300,
+            xp: 0,
+            maxXp: 100,
             level: 1,
             gold: 100,
             isPro: false
         };
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        // Создание нового квеста из инпута
+        function addNewQuest() {
+            const input = document.getElementById('questInput');
+            const title = input.value.trim();
+            if (!title) return;
+
+            const questList = document.getElementById('quest-list');
+            const li = document.createElement('li');
+            li.className = "flex justify-between items-center bg-dark-800 border border-slate-700/50 p-3.5 rounded-xl shadow";
+            li.innerHTML = `<span>${title}</span> <div class="flex items-center gap-2"><button onclick="completeQuest(this, 50)" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition">Terminer</button><button onclick="deleteQuest(this)" class="text-slate-500 hover:text-red-400 font-bold px-1">✕</button></div>`;
+            questList.appendChild(li);
             
-            document.getElementById('tab-btn-quests').className = tabName === 'quests' ? 'pb-3 border-b-2 border-purple-500 text-purple-300 transition' : 'pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition';
-            document.getElementById('tab-btn-shop').className = tabName === 'shop' ? 'pb-3 border-b-2 border-purple-500 text-purple-300 transition' : 'pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition';
+            input.value = '';
         }
 
+        // Удаление квеста
+        function deleteQuest(btn) {
+            btn.closest('li').remove();
+        }
+
+        // Выполнение квеста
         function completeQuest(btn, xpReward) {
-            btn.classList.add('bg-purple-600', 'text-white');
-            btn.innerHTML = '<i class="fa-solid fa-check text-xs"></i>';
-            
+            const li = btn.closest('li');
+            li.style.opacity = '0.5';
+            btn.disabled = true;
+            btn.innerText = 'Validé ✓';
+            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+            btn.classList.add('bg-emerald-600');
+
             gameState.xp += xpReward;
-            gameState.gold += 10;
+            gameState.gold += 15;
+
+            if (gameState.xp >= gameState.maxXp) {
+                gameState.level++;
+                gameState.xp -= gameState.maxXp;
+                gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+            }
+
+            updateUI();
+        }
+
+        // Просмотр рекламы за награду
+        function watchAdForReward() {
+            alert("▶️ Simulation AdMob : Vous avez regardé la publicité et gagné +50 XP et +15 Or !");
+            gameState.xp += 50;
+            gameState.gold += 15;
             
             if (gameState.xp >= gameState.maxXp) {
                 gameState.level++;
                 gameState.xp -= gameState.maxXp;
                 gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
             }
-            
             updateUI();
         }
 
-        function watchAdForReward() {
-            alert("▶ Симуляция видеорекламы AdMob: Вы посмотрели ролик и получили +50 XP и +15 золота!");
-            gameState.xp += 50;
-            gameState.gold += 15;
-            updateUI();
-        }
-
+        // Покупка товаров в магазине
         function buyItem(cost, itemName) {
             if (gameState.gold >= cost) {
                 gameState.gold -= cost;
-                alert(`🎉 Успешно куплено: "${itemName}"!`);
+                alert(`🎉 Achat réussi : ${itemName} !`);
+                if(itemName === 'Potion de Sagesse') {
+                    gameState.xp += 50;
+                    if (gameState.xp >= gameState.maxXp) {
+                        gameState.level++;
+                        gameState.xp -= gameState.maxXp;
+                        gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 } });
+                    }
+                }
                 updateUI();
             } else {
-                alert("❌ Недостаточно золота! Выполняйте больше квестов.");
+                alert("❌ Or insuffisant ! Accomplissez plus de quêtes.");
             }
         }
 
+        // Покупка PRO версии
         function buyProVersion() {
-            gameState.isPro = true;
-            document.getElementById('pro-badge').innerText = 'PRO';
-            document.getElementById('pro-badge').className = 'text-xs bg-amber-500 text-slate-950 font-bold px-2 py-0.5 rounded-full';
-            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
-            alert("👑 Поздравляем! Вы успешно активировали QuestLife PRO (симуляция Google Play Billing).");
+            if (gameState.gold >= 200 || gameState.isPro) {
+                if(!gameState.isPro) gameState.gold -= 200;
+                gameState.isPro = true;
+                document.getElementById('pro-badge').innerText = 'PRO';
+                document.getElementById('pro-badge').className = 'text-xs bg-amber-500 text-slate-950 font-bold px-2.5 py-0.5 rounded-full';
+                confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
+                alert("👑 Félicitations ! Vous avez activé QuestLife PRO.");
+                updateUI();
+            } else {
+                alert("❌ Il vous faut 200 pièces d'or pour débloquer la version PRO !");
+            }
         }
 
+        // Обновление интерфейса на экране
         function updateUI() {
             document.getElementById('gold-count').innerText = gameState.gold;
             document.getElementById('xp-text').innerText = `${gameState.xp} / ${gameState.maxXp} XP`;
             document.getElementById('xp-bar').style.width = `${Math.min(100, (gameState.xp / gameState.maxXp) * 100)}%`;
-            document.getElementById('char-title').innerText = `Уровень ${gameState.level} • Воин`;
+            document.getElementById('char-title').innerText = `Niveau ${gameState.level} • Guerrier`;
         }
-        function addNewQuest() {
-    const title = prompt("Entrez le nom de la nouvelle quête :");
-    if (!title) return;
-    
-    const questList = document.getElementById('quest-list');
-    if (questList) {
-        const li = document.createElement('li');
-        li.className = "flex justify-between items-center bg-dark-800 p-3 rounded mb-2";
-        li.innerHTML = `<span>${title}</span> <button onclick="completeQuest(this, 50)" class="bg-indigo-600 px-3 py-1 rounded text-white">Terminer</button>`;
-        questList.appendChild(li);
-    }
-}
     </script>
-</body>
-</html>
