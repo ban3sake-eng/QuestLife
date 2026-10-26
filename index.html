@@ -310,14 +310,14 @@
 
             gameState.xp += 50;
             gameState.gold += 15;
-            
+
             if (gameState.xp >= gameState.maxXp) {
                 gameState.level++;
                 gameState.xp -= gameState.maxXp;
                 gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
                 confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
             }
-            
+
             updateUI();
             alert("🎉 Merci d'avoir regardé la publicité ! Vous avez reçu +50 XP et +15 Or.");
         }
