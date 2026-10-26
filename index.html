@@ -17,10 +17,27 @@
             }
         };
     </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            background-image:
+                radial-gradient(circle at top, rgba(99, 102, 241, 0.18), transparent 30%),
+                linear-gradient(to bottom, #0f172a, #111827 40%, #0f172a);
+        }
+        ::selection {
+            background: rgba(99, 102, 241, 0.4);
+            color: white;
+        }
+    </style>
 </head>
 <body class="bg-dark-900 text-slate-100 min-h-screen pb-20 md:pb-6">
     <div class="max-w-md mx-auto p-4 sm:p-6">
         <header class="bg-dark-800 border border-slate-700 rounded-2xl p-4 shadow-lg mb-6">
+            <div class="mb-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-amber-500 px-3 py-2 text-center shadow-lg shadow-indigo-900/30">
+                <p class="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-100/90">Реклама</p>
+                <p class="text-xs font-bold text-white">QuestLife PRO • Plus de récompenses, plus de vitesse</p>
+            </div>
+
             <div class="flex justify-between items-center mb-3 gap-3">
                 <div>
                     <h1 id="char-title" class="text-xl font-black text-amber-400">Niveau 1 • Guerrier</h1>
@@ -107,7 +124,7 @@
         </section>
     </div>
 
-    <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 pointer-events-none opacity-0 transition-all duration-300 bg-slate-800 border border-slate-600 text-slate-100 px-4 py-2 rounded-full text-sm shadow-lg">
+    <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 pointer-events-none opacity-0 transition-all duration-300 bg-slate-800 border border-slate-600 text-slate-100 px-4 py-2 rounded-full text-sm font-medium shadow-xl">
         message
     </div>
 
@@ -115,21 +132,36 @@
         const STORAGE_KEY = 'questlife-save-v1';
         const DAILY_REWARD_MS = 24 * 60 * 60 * 1000;
 
-        const defaultState = {
-            xp: 0,
-            maxXp: 100,
-            level: 1,
-            gold: 100,
-            isPro: false,
-            dailyRewardAt: 0,
-            quests: [
-                { id: crypto.randomUUID(), text: 'Faire du sport (30 min)', xpReward: 50, goldReward: 15, completed: false },
-                { id: crypto.randomUUID(), text: 'Lire 10 pages d\'un livre', xpReward: 40, goldReward: 15, completed: false }
-            ]
-        };
+        function makeId() {
+            if (window.crypto && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return `quest-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        }
 
         function getBaseState() {
-            return JSON.parse(JSON.stringify(defaultState));
+            return {
+                xp: 0,
+                maxXp: 100,
+                level: 1,
+                gold: 100,
+                isPro: false,
+                dailyRewardAt: 0,
+                quests: [
+                    { id: makeId(), text: 'Faire du sport (30 min)', xpReward: 50, goldReward: 15, completed: false },
+                    { id: makeId(), text: 'Lire 10 pages d\'un livre', xpReward: 40, goldReward: 15, completed: false }
+                ]
+            };
+        }
+
+        function normalizeQuest(quest) {
+            return {
+                id: typeof quest?.id === 'string' && quest.id ? quest.id : makeId(),
+                text: String(quest?.text || '').trim() || 'Quête sans nom',
+                xpReward: Number.isFinite(Number(quest?.xpReward)) ? Number(quest.xpReward) : 0,
+                goldReward: Number.isFinite(Number(quest?.goldReward)) ? Number(quest.goldReward) : 0,
+                completed: Boolean(quest?.completed)
+            };
         }
 
         function loadState() {
@@ -139,19 +171,20 @@
 
                 const parsed = JSON.parse(saved);
                 const base = getBaseState();
+                const quests = Array.isArray(parsed?.quests) && parsed.quests.length
+                    ? parsed.quests.map(normalizeQuest)
+                    : base.quests;
 
                 return {
                     ...base,
                     ...parsed,
-                    dailyRewardAt: Number(parsed.dailyRewardAt || 0),
-                    quests: Array.isArray(parsed.quests) && parsed.quests.length ? parsed.quests.map((quest) => ({
-                        ...quest,
-                        id: quest.id || crypto.randomUUID(),
-                        text: String(quest.text || '').trim() || 'Quête sans nom',
-                        xpReward: Number(quest.xpReward || 0),
-                        goldReward: Number(quest.goldReward || 0),
-                        completed: Boolean(quest.completed)
-                    })) : base.quests
+                    xp: Number.isFinite(Number(parsed?.xp)) ? Number(parsed.xp) : base.xp,
+                    maxXp: Number.isFinite(Number(parsed?.maxXp)) ? Number(parsed.maxXp) : base.maxXp,
+                    level: Number.isFinite(Number(parsed?.level)) ? Number(parsed.level) : base.level,
+                    gold: Number.isFinite(Number(parsed?.gold)) ? Number(parsed.gold) : base.gold,
+                    isPro: Boolean(parsed?.isPro),
+                    dailyRewardAt: Number.isFinite(Number(parsed?.dailyRewardAt)) ? Number(parsed.dailyRewardAt) : 0,
+                    quests
                 };
             } catch (error) {
                 return getBaseState();
@@ -161,7 +194,11 @@
         let gameState = loadState();
 
         function saveState() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+            } catch (error) {
+                console.warn('Impossible de sauvegarder l\'état:', error);
+            }
         }
 
         function showToast(message) {
@@ -229,7 +266,7 @@
             }
 
             gameState.quests.push({
-                id: crypto.randomUUID(),
+                id: makeId(),
                 text: title,
                 xpReward: 50,
                 goldReward: 15,
@@ -257,6 +294,7 @@
             gameState.gold += quest.goldReward || 15;
             addXp(xpReward || quest.xpReward || 50);
             renderQuestList();
+            saveState();
             showToast(`✅ Quête terminée ! +${xpReward || quest.xpReward || 50} XP`);
         }
 
@@ -295,7 +333,7 @@
                 proBadge.textContent = 'PRO';
                 proBadge.className = 'text-xs bg-amber-500 text-slate-950 font-bold px-2.5 py-0.5 rounded-full';
                 buyProBtn.textContent = '👑 QuestLife PRO activé';
-                buyProBtn.className = 'w-full mt-3 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20';
+                buyProBtn.className = 'w-full mt-3 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20 cursor-default';
                 buyProBtn.disabled = true;
             } else {
                 proBadge.textContent = 'Gratuit';
