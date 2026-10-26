@@ -216,7 +216,18 @@
             document.getElementById('xp-text').innerText = `${gameState.xp} / ${gameState.maxXp} XP`;
             document.getElementById('xp-bar').style.width = `${Math.min(100, (gameState.xp / gameState.maxXp) * 100)}%`;
             document.getElementById('char-title').innerText = `Уровень ${gameState.level} • Воин`;
-        }
+        }function addNewQuest() {
+    const title = prompt("Entrez le nom de la nouvelle quête :");
+    if (!title) return;
+    
+    const questList = document.getElementById('quest-list');
+    if (questList) {
+        const li = document.createElement('li');
+        li.className = "flex justify-between items-center bg-dark-800 p-3 rounded mb-2";
+        li.innerHTML = `<span>${title}</span> <button onclick="completeQuest(this, 50)" class="bg-indigo-600 px-3 py-1 rounded text-white">Terminer</button>`;
+        questList.appendChild(li);
+    }
+}
     </script>
 </body>
 </html>
