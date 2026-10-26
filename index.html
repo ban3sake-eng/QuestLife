@@ -19,22 +19,24 @@
     </script>
 </head>
 <body class="bg-dark-900 text-slate-100 min-h-screen pb-20 md:pb-6">
-
     <div class="max-w-md mx-auto p-4 sm:p-6">
-        <!-- Шапка персонажа -->
         <header class="bg-dark-800 border border-slate-700 rounded-2xl p-4 shadow-lg mb-6">
-            <div class="flex justify-between items-center mb-3">
+            <div class="flex justify-between items-center mb-3 gap-3">
                 <div>
                     <h1 id="char-title" class="text-xl font-black text-amber-400">Niveau 1 • Guerrier</h1>
                     <span id="pro-badge" class="text-xs bg-slate-700 text-slate-300 font-bold px-2 py-0.5 rounded-full">Gratuit</span>
                 </div>
-                <div class="flex items-center gap-1 bg-dark-900 px-3 py-1.5 rounded-xl border border-slate-700">
-                    <span class="text-amber-400 font-bold">🪙</span>
-                    <span id="gold-count" class="font-bold text-amber-300">100</span>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-dark-900 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <span class="text-amber-400 font-bold">🪙</span>
+                        <span id="gold-count" class="font-bold text-amber-300">100</span>
+                    </div>
+                    <button id="reset-btn" type="button" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-2 py-1.5 rounded-lg transition">
+                        Reset
+                    </button>
                 </div>
             </div>
 
-            <!-- Шкала опыта -->
             <div>
                 <div class="flex justify-between text-xs text-slate-400 mb-1">
                     <span>Expérience (XP)</span>
@@ -46,44 +48,33 @@
             </div>
         </header>
 
-        <!-- Создание квеста -->
         <section class="mb-6">
             <h2 class="text-lg font-bold mb-3 flex items-center gap-2">📜 Nouvelles Quêtes</h2>
             <div class="flex gap-2">
-                <input type="text" id="questInput" placeholder="Nom de la nouvelle quête..." class="bg-dark-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white flex-1 focus:outline-none focus:border-indigo-500 text-sm">
-                <button onclick="addNewQuest()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">Créer</button>
+                <input
+                    type="text"
+                    id="questInput"
+                    placeholder="Nom de la nouvelle quête..."
+                    class="bg-dark-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    maxlength="80"
+                >
+                <button id="addQuestBtn" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">
+                    Créer
+                </button>
             </div>
         </section>
 
-        <!-- Список квестов -->
         <section class="mb-6">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Quêtes Actives</h3>
-            <ul id="quest-list" class="space-y-2">
-                <li class="flex justify-between items-center bg-dark-800 border border-slate-700/50 p-3.5 rounded-xl shadow">
-                    <span>Faire du sport (30 min)</span>
-                    <div class="flex items-center gap-2">
-                        <button onclick="completeQuest(this, 50)" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition">Terminer</button>
-                        <button onclick="deleteQuest(this)" class="text-slate-500 hover:text-red-400 font-bold px-1">✕</button>
-                    </div>
-                </li>
-                <li class="flex justify-between items-center bg-dark-800 border border-slate-700/50 p-3.5 rounded-xl shadow">
-                    <span>Lire 10 pages d'un livre</span>
-                    <div class="flex items-center gap-2">
-                        <button onclick="completeQuest(this, 40)" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition">Terminer</button>
-                        <button onclick="deleteQuest(this)" class="text-slate-500 hover:text-red-400 font-bold px-1">✕</button>
-                    </div>
-                </li>
-            </ul>
+            <ul id="quest-list" class="space-y-2"></ul>
         </section>
 
-        <!-- Бонусная реклама -->
         <section class="mb-6">
-            <button onclick="watchAdForReward()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+            <button id="watchAdBtn" type="button" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-600/20 transition">
                 <span>🎁 Regarder une pub (+50 XP, +15 Or)</span>
             </button>
         </section>
 
-        <!-- Магазин (Boutique) -->
         <section>
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Boutique du Mage</h3>
             <div class="grid grid-cols-2 gap-3">
@@ -93,130 +84,303 @@
                         <h4 class="font-bold text-sm">Potion de Sagesse</h4>
                         <p class="text-xs text-slate-400 mb-3">+50 XP instantané</p>
                     </div>
-                    <button onclick="buyItem(30, 'Potion de Sagesse')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs transition">30 🪙</button>
+                    <button type="button" data-item="Potion de Sagesse" data-cost="30" class="buy-item w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs transition">
+                        30 🪙
+                    </button>
                 </div>
+
                 <div class="bg-dark-800 border border-slate-700 p-3.5 rounded-xl flex flex-col justify-between">
                     <div>
                         <div class="text-2xl mb-1">⚔️</div>
                         <h4 class="font-bold text-sm">Épée Magique</h4>
                         <p class="text-xs text-slate-400 mb-3">Statut Légendaire</p>
                     </div>
-                    <button onclick="buyItem(100, 'Épée Magique')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs transition">100 🪙</button>
+                    <button type="button" data-item="Épée Magique" data-cost="100" class="buy-item w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-lg text-xs transition">
+                        100 🪙
+                    </button>
                 </div>
             </div>
-            <button onclick="buyProVersion()" class="w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg shadow-amber-500/20">
+
+            <button id="buyProBtn" type="button" class="w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20">
                 👑 Activer QuestLife PRO (200 🪙)
             </button>
         </section>
     </div>
 
+    <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 pointer-events-none opacity-0 transition-all duration-300 bg-slate-800 border border-slate-600 text-slate-100 px-4 py-2 rounded-full text-sm shadow-lg z-50">
+        message
+    </div>
+
     <script>
-        // Состояние игры
-        let gameState = {
+        const STORAGE_KEY = 'questlife-save-v1';
+
+        const defaultState = {
             xp: 0,
             maxXp: 100,
             level: 1,
             gold: 100,
-            isPro: false
+            isPro: false,
+            quests: [
+                { id: crypto.randomUUID(), text: 'Faire du sport (30 min)', xpReward: 50, goldReward: 15, completed: false },
+                { id: crypto.randomUUID(), text: 'Lire 10 pages d\'un livre', xpReward: 40, goldReward: 15, completed: false }
+            ]
         };
 
-        // Создание нового квеста из инпута
+        function getBaseState() {
+            return JSON.parse(JSON.stringify(defaultState));
+        }
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) return getBaseState();
+
+                const parsed = JSON.parse(saved);
+                const base = getBaseState();
+
+                return {
+                    ...base,
+                    ...parsed,
+                    quests: Array.isArray(parsed.quests) && parsed.quests.length ? parsed.quests.map((quest) => ({
+                        ...quest,
+                        id: quest.id || crypto.randomUUID(),
+                        text: String(quest.text || '').trim() || 'Quête sans nom',
+                        xpReward: Number(quest.xpReward || 0),
+                        goldReward: Number(quest.goldReward || 0),
+                        completed: Boolean(quest.completed)
+                    })) : base.quests
+                };
+            } catch (error) {
+                return getBaseState();
+            }
+        }
+
+        let gameState = loadState();
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(showToast.timeoutId);
+            showToast.timeoutId = setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2000);
+        }
+
+        function addXp(amount) {
+            if (amount <= 0) return;
+
+            gameState.xp += amount;
+
+            while (gameState.xp >= gameState.maxXp) {
+                gameState.level += 1;
+                gameState.xp -= gameState.maxXp;
+                gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+            }
+
+            updateUI();
+            saveState();
+        }
+
         function addNewQuest() {
             const input = document.getElementById('questInput');
             const title = input.value.trim();
-            if (!title) return;
 
-            const questList = document.getElementById('quest-list');
-            const li = document.createElement('li');
-            li.className = "flex justify-between items-center bg-dark-800 border border-slate-700/50 p-3.5 rounded-xl shadow";
-            li.innerHTML = `<span>${title}</span> <div class="flex items-center gap-2"><button onclick="completeQuest(this, 50)" class="bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold transition">Terminer</button><button onclick="deleteQuest(this)" class="text-slate-500 hover:text-red-400 font-bold px-1">✕</button></div>`;
-            questList.appendChild(li);
-            
+            if (!title) {
+                showToast('❌ Saisis un nom de quête.');
+                input.focus();
+                return;
+            }
+
+            gameState.quests.push({
+                id: crypto.randomUUID(),
+                text: title,
+                xpReward: 50,
+                goldReward: 15,
+                completed: false
+            });
+
             input.value = '';
+            renderQuestList();
+            saveState();
+            showToast('✅ Quête ajoutée !');
         }
 
-        // Удаление квеста
-        function deleteQuest(btn) {
-            btn.closest('li').remove();
+        function deleteQuest(id) {
+            gameState.quests = gameState.quests.filter((quest) => quest.id !== id);
+            renderQuestList();
+            saveState();
+            showToast('🗑️ Quête supprimée.');
         }
 
-        // Выполнение квеста
-        function completeQuest(btn, xpReward) {
-            const li = btn.closest('li');
-            li.style.opacity = '0.5';
-            btn.disabled = true;
-            btn.innerText = 'Validé ✓';
-            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
-            btn.classList.add('bg-emerald-600');
+        function completeQuest(id, xpReward) {
+            const quest = gameState.quests.find((item) => item.id === id);
+            if (!quest || quest.completed) return;
 
-            gameState.xp += xpReward;
-            gameState.gold += 15;
-
-            if (gameState.xp >= gameState.maxXp) {
-                gameState.level++;
-                gameState.xp -= gameState.maxXp;
-                gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
-                confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
-            }
-
-            updateUI();
+            quest.completed = true;
+            gameState.gold += quest.goldReward || 15;
+            addXp(xpReward || quest.xpReward || 50);
+            renderQuestList();
+            showToast(`✅ Quête terminée ! +${xpReward || quest.xpReward || 50} XP`);
         }
 
-        // Просмотр рекламы за награду
-        function watchAdForReward() {
-            alert("▶️ Simulation AdMob : Vous avez regardé la publicité et gagné +50 XP et +15 Or !");
-            gameState.xp += 50;
-            gameState.gold += 15;
-            
-            if (gameState.xp >= gameState.maxXp) {
-                gameState.level++;
-                gameState.xp -= gameState.maxXp;
-                gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
-                confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
-            }
-            updateUI();
-        }
-
-        // Покупка товаров в магазине
-        function buyItem(cost, itemName) {
-            if (gameState.gold >= cost) {
-                gameState.gold -= cost;
-                alert(`🎉 Achat réussi : ${itemName} !`);
-                if(itemName === 'Potion de Sagesse') {
-                    gameState.xp += 50;
-                    if (gameState.xp >= gameState.maxXp) {
-                        gameState.level++;
-                        gameState.xp -= gameState.maxXp;
-                        gameState.maxXp = Math.floor(gameState.maxXp * 1.5);
-                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 } });
-                    }
-                }
-                updateUI();
-            } else {
-                alert("❌ Or insuffisant ! Accomplissez plus de quêtes.");
-            }
-        }
-
-        // Покупка PRO версии
-        function buyProVersion() {
-            if (gameState.gold >= 200 || gameState.isPro) {
-                if(!gameState.isPro) gameState.gold -= 200;
-                gameState.isPro = true;
-                document.getElementById('pro-badge').innerText = 'PRO';
-                document.getElementById('pro-badge').className = 'text-xs bg-amber-500 text-slate-950 font-bold px-2.5 py-0.5 rounded-full';
-                confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
-                alert("👑 Félicitations ! Vous avez activé QuestLife PRO.");
-                updateUI();
-            } else {
-                alert("❌ Il vous faut 200 pièces d'or pour débloquer la version PRO !");
-            }
-        }
-
-        // Обновление интерфейса на экране
         function updateUI() {
-            document.getElementById('gold-count').innerText = gameState.gold;
-            document.getElementById('xp-text').innerText = `${gameState.xp} / ${gameState.maxXp} XP`;
-            document.getElementById('xp-bar').style.width = `${Math.min(100, (gameState.xp / gameState.maxXp) * 100)}%`;
-            document.getElementById('char-title').innerText = `Niveau ${gameState.level} • Guerrier`;
+            const proBadge = document.getElementById('pro-badge');
+            const goldCount = document.getElementById('gold-count');
+            const xpText = document.getElementById('xp-text');
+            const xpBar = document.getElementById('xp-bar');
+            const charTitle = document.getElementById('char-title');
+            const buyProBtn = document.getElementById('buyProBtn');
+
+            goldCount.textContent = String(gameState.gold);
+            xpText.textContent = `${gameState.xp} / ${gameState.maxXp} XP`;
+            xpBar.style.width = `${Math.min(100, (gameState.xp / gameState.maxXp) * 100)}%`;
+            charTitle.textContent = `Niveau ${gameState.level} • Guerrier`;
+
+            if (gameState.isPro) {
+                proBadge.textContent = 'PRO';
+                proBadge.className = 'text-xs bg-amber-500 text-slate-950 font-bold px-2.5 py-0.5 rounded-full';
+                buyProBtn.textContent = '👑 QuestLife PRO activé';
+                buyProBtn.className = 'w-full mt-3 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20';
+                buyProBtn.disabled = true;
+            } else {
+                proBadge.textContent = 'Gratuit';
+                proBadge.className = 'text-xs bg-slate-700 text-slate-300 font-bold px-2 py-0.5 rounded-full';
+                buyProBtn.textContent = '👑 Activer QuestLife PRO (200 🪙)';
+                buyProBtn.className = 'w-full mt-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg shadow-orange-500/20';
+                buyProBtn.disabled = false;
+            }
         }
+
+        function renderQuestList() {
+            const questList = document.getElementById('quest-list');
+            questList.innerHTML = '';
+
+            if (gameState.quests.length === 0) {
+                const emptyItem = document.createElement('li');
+                emptyItem.className = 'bg-dark-800 border border-dashed border-slate-700 p-3.5 rounded-xl text-sm text-slate-400 text-center';
+                emptyItem.textContent = 'Aucune quête pour le moment. Ajoute une mission !';
+                questList.appendChild(emptyItem);
+                return;
+            }
+
+            for (const quest of gameState.quests) {
+                const li = document.createElement('li');
+                li.className = `flex justify-between items-center bg-dark-800 border border-slate-700/50 p-3.5 rounded-xl shadow transition ${quest.completed ? 'opacity-50' : ''}`;
+
+                const title = document.createElement('span');
+                title.className = 'text-sm text-slate-100 pr-3';
+                title.textContent = quest.text;
+
+                const actions = document.createElement('div');
+                actions.className = 'flex items-center gap-2';
+
+                const completeBtn = document.createElement('button');
+                completeBtn.type = 'button';
+                completeBtn.className = `px-3 py-1.5 rounded-lg text-xs font-bold transition ${quest.completed ? 'bg-emerald-600 text-white cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`;
+                completeBtn.textContent = quest.completed ? 'Validé ✓' : 'Terminer';
+                completeBtn.disabled = quest.completed;
+                completeBtn.addEventListener('click', () => completeQuest(quest.id, quest.xpReward));
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'text-slate-500 hover:text-red-400 font-bold px-1';
+                removeBtn.textContent = '✕';
+                removeBtn.setAttribute('aria-label', `Supprimer la quête ${quest.text}`);
+                removeBtn.addEventListener('click', () => deleteQuest(quest.id));
+
+                actions.appendChild(completeBtn);
+                actions.appendChild(removeBtn);
+                li.appendChild(title);
+                li.appendChild(actions);
+                questList.appendChild(li);
+            }
+        }
+
+        function watchAdForReward() {
+            gameState.gold += 15;
+            addXp(50);
+            showToast('🎁 Pub regardée ! +50 XP et +15 Or');
+        }
+
+        function buyItem(cost, itemName) {
+            if (gameState.gold < cost) {
+                showToast('❌ Or insuffisant ! Accomplissez plus de quêtes.');
+                return;
+            }
+
+            gameState.gold -= cost;
+            saveState();
+
+            if (itemName === 'Potion de Sagesse') {
+                addXp(50);
+                showToast(`🎉 Achat réussi : ${itemName} ! +50 XP`);
+            } else {
+                showToast(`🎉 Achat réussi : ${itemName} !`);
+            }
+
+            updateUI();
+        }
+
+        function buyProVersion() {
+            if (gameState.isPro) {
+                showToast('✅ Vous avez déjà QuestLife PRO.');
+                return;
+            }
+
+            if (gameState.gold < 200) {
+                showToast('❌ Il vous faut 200 pièces d\'or pour débloquer la version PRO !');
+                return;
+            }
+
+            gameState.gold -= 200;
+            gameState.isPro = true;
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
+            updateUI();
+            saveState();
+            showToast('👑 Félicitations ! Vous avez activé QuestLife PRO.');
+        }
+
+        function resetProgress() {
+            const shouldReset = window.confirm('Réinitialiser toute la progression ?');
+            if (!shouldReset) return;
+
+            localStorage.removeItem(STORAGE_KEY);
+            gameState = getBaseState();
+            renderQuestList();
+            updateUI();
+            showToast('🔄 Progression réinitialisée.');
+        }
+
+        document.getElementById('addQuestBtn').addEventListener('click', addNewQuest);
+        document.getElementById('questInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                addNewQuest();
+            }
+        });
+
+        document.getElementById('watchAdBtn').addEventListener('click', watchAdForReward);
+        document.getElementById('reset-btn').addEventListener('click', resetProgress);
+        document.getElementById('buyProBtn').addEventListener('click', buyProVersion);
+
+        document.querySelectorAll('.buy-item').forEach((button) => {
+            button.addEventListener('click', () => {
+                const itemName = button.getAttribute('data-item');
+                const cost = Number(button.getAttribute('data-cost'));
+                buyItem(cost, itemName);
+            });
+        });
+
+        renderQuestList();
+        updateUI();
     </script>
+</body>
+</html>
